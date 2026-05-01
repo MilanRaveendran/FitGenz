@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FitGenz</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:"times new roman", sans-serif;}
+/* BACKGROUND */body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(rgba(255,255,255,0.65), rgba(255,255,255,0.65)),url("bgimages.png.png");background-size:cover;background-position:center;}
+/* CENTER GLASS CARD */
+.content{width:100%;max-width:750px;padding:50px 40px;text-align:center;background:rgba(255,255,255,0.65);backdrop-filter:blur(12px);border-radius:20px;border:1px solid rgba(255,255,255,0.8);box-shadow:0 15px 40px rgba(0,0,0,0.12);}
+/* TITLE */
+h1{font-size:52px;color:#159895;margin-bottom:15px;}
+/* DESCRIPTION */
+p{font-size:18px;color:#374151;line-height:1.6;}
+/* DISCLAIMER */
+.disclaimer{margin-top:25px;font-size:14px;color:#6b7280;}
+/* PREMIUM BUTTON */
+.start-btn{margin-top:30px;padding:14px 36px;border-radius:30px;border:none;font-size:17px;font-weight:600;color:white;background:linear-gradient(135deg,#34d399,#0ea5a4);box-shadow:0 12px 30px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.3);cursor:pointer;transition:0.3s;}
+.start-btn:hover{transform:translateY(-3px);box-shadow:0 18px 40px rgba(0,0,0,0.25);}
+/* FOOTER */
+footer{margin-top:30px;font-size:13px;color:#6b7280;}
+/* ===== TABLETS ===== */
+@media (max-width: 900px){.content{padding:40px 25px;}
+h1{font-size:38px;}
+p{font-size:16px;}} 
+/* ===== MOBILE PHONES ===== */
+@media (max-width: 600px){body{padding:15px;}
+.content{padding:30px 20px;border-radius:16px;}
+h1{font-size:28px;}
+p{font-size:15px;}
+.start-btn{width:100%;font-size:16px;padding:14px;}}
+</style>
+</head>
+<body>
+<div class="content">
+<h1>FitGenz</h1>
+<p>
+FitGenz helps you understand your body and health through smart tools.
+Calculate BMI, body fat percentage, daily calorie needs, and analyze sleep.
+Build better habits with simple fitness guidance.
+</p>
+<p class="disclaimer">
+<strong>Disclaimer:</strong><br>
+This website provides general fitness awareness only.
+It does not diagnose or treat medical conditions.
+Consult a healthcare professional for medical advice.
+</p>
+<a href="Fitgenztools.html">
+<button class="start-btn">Start Your Fitness Journey</button>
+</a><footer>© 2026 FitGenz — Educational purpose only</footer></div></body></html>

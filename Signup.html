@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign Up | FitGenz</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Segoe UI", sans-serif;}
+/* BACKGROUND */
+body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(rgba(255,255,255,0.65), rgba(255,255,255,0.65)),url("bgimages.png.png");background-size:cover;background-position:center;}
+/* GLASS CARD */
+.container{width:100%;max-width:420px;padding:40px 30px;border-radius:18px;text-align:center;background:rgba(255,255,255,0.65);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.8);box-shadow:0 15px 40px rgba(0,0,0,0.12);}
+h2{color:#159895;margin-bottom:10px;}
+/* INPUTS */
+input{width:100%;padding:13px;margin-top:12px;border-radius:10px;border:1px solid #e5e7eb;font-size:15px;}
+/* BUTTON */
+button{width:100%;padding:14px;margin-top:18px;border:none;border-radius:30px;font-size:16px;font-weight:600;color:white;background:linear-gradient(135deg,#34d399,#0ea5a4);cursor:pointer;}
+button:hover{transform:translateY(-2px);}
+.switch{margin-top:15px;font-size:14px;}
+a{color:#159895;text-decoration:none;}
+/* MOBILE */@media(max-width:480px){.container{padding:35px 20px;}}
+</style>
+</head>
+<body>
+<div class="container">
+<h2>Create Account</h2>
+
+<input type="email" id="email" placeholder="Email">
+<input type="password" id="password" placeholder="Password">
+
+<button onclick="signup()">Sign Up</button>
+
+<div class="switch">
+Already have an account?
+<a href="Signin.html">Sign in</a>
+</div>
+</div>
+
+<script>
+async function signup() {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    if (!email || !password) {
+        alert("Please fill all fields");
+        return;
+    }
+
+    try {
+        const response = await fetch("http://localhost:5000/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                name: "User",
+                email,
+                password
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            alert("Account created successfully!");
+            window.location.href = "signin.html";
+        } else {
+            alert(data.error || "Signup failed");
+        }
+
+    } catch (err) {
+        console.error("Signup error:", err);
+        alert("Server not reachable");
+    }
+}
+</script>
+</body>
+</html>

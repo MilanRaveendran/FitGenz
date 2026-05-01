@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Last Record | FitGenzz</title>
+
+<style>
+*{ box-sizing:border-box; }
+
+body{
+    margin:0;
+    font-family:"Segoe UI", sans-serif;
+    min-height:100vh;
+    padding:20px;
+
+    background:
+    linear-gradient(rgba(255,255,255,0.65), rgba(255,255,255,0.65)),
+    url("bgimages.png.png");
+
+    background-size:cover;
+    background-position:center;
+}
+
+.container{
+    max-width:1100px;
+    margin:auto;
+    padding:20px;
+}
+
+h1{
+    text-align:center;
+    color:#1f6f4a;
+    margin-bottom:20px;
+}
+
+/* TOP BUTTONS */
+.top-buttons{
+    position:fixed;
+    top:20px;
+    right:20px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    z-index:10;
+}
+
+.top-buttons button{
+    padding:12px 20px;
+    border:none;
+    border-radius:25px;
+    font-weight:600;
+    color:white;
+    background:linear-gradient(135deg,#0ea5a4,#34d399);
+    cursor:pointer;
+}
+
+/* FILTER */
+.filter-bar{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:10px;
+    margin-bottom:20px;
+}
+
+.filter-btn{
+    padding:8px 18px;
+    border:none;
+    border-radius:20px;
+    cursor:pointer;
+    font-weight:600;
+    background:rgba(255,255,255,0.3);
+    backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,0.4);
+    color:#1f6f4a;
+}
+
+.filter-btn.active{
+    background:linear-gradient(135deg,#2e8b57,#3cb371);
+    color:white;
+}
+
+/* DATE */
+.date-filter{
+    text-align:center;
+    margin-bottom:20px;
+}
+
+.date-filter input{
+    padding:10px 14px;
+    border-radius:10px;
+    border:1px solid #ccc;
+    font-size:15px;
+}
+
+/* GRID */
+#records{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:20px;
+}
+
+.record-box{
+    background:rgba(255,255,255,0.65);
+    backdrop-filter:blur(10px);
+    border-radius:15px;
+    padding:20px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.1);
+}
+
+.no-data{
+    text-align:center;
+    font-weight:bold;
+    color:#777;
+}
+
+/* BACK BUTTON */
+.back-btn{
+    display:block;
+    margin:30px auto 0;
+    padding:12px 28px;
+    border:none;
+    border-radius:25px;
+    background:#2e8b57;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+}
+
+/* MOBILE */
+@media(max-width:600px){
+    body{ padding:15px; }
+
+    .top-buttons{
+        position:static;
+        flex-direction:row;
+        justify-content:center;
+        margin-bottom:15px;
+    }
+
+    .top-buttons button{
+        flex:1;
+        font-size:14px;
+        padding:10px;
+    }
+}
+</style>
+</head>
+
+<body>
+<div class="top-buttons">
+<button onclick="openBMI()">BMI Progress 📈</button>
+</div>
+
+<div class="container">
+<h1>Your Last Record</h1>
+
+<div class="filter-bar">
+<button class="filter-btn active" onclick="filterRecords('all', this)">All</button>
+<button class="filter-btn" onclick="filterRecords('BMI', this)">BMI</button>
+<button class="filter-btn" onclick="filterRecords('Calories', this)">Calories</button>
+<button class="filter-btn" onclick="filterRecords('BodyFat', this)">Body Fat</button>
+<button class="filter-btn" onclick="filterRecords('Sleep', this)">Sleep</button>
+<button class="filter-btn" onclick="filterRecords('Workout', this)">Workout</button>
+</div>
+
+<div class="date-filter">
+<input type="date" id="dateSearch" onchange="renderRecords(currentType)">
+</div>
+
+<div id="records"></div>
+
+<button class="back-btn" onclick="window.location.href='Fitgenztools.html'">
+Back to Tools
+</button>
+</div>
+
+<script>
+let recordsDiv = document.getElementById("records");
+let currentType = "all";
+
+const userId = localStorage.getItem("userId");
+const key = "healthRecords_" + userId;
+
+let healthRecords = JSON.parse(localStorage.getItem(key)) || [];
+
+/* MIGRATION */
+function migrateOldData(){
+    if(localStorage.getItem("migrationDone")) return;
+
+    let bmi = localStorage.getItem("lastBMI");
+    if(bmi){
+        healthRecords.push({
+            type:"BMI",
+            bmi:bmi,
+            category:localStorage.getItem("lastBMICategory"),
+            date:new Date().toISOString()
+        });
+    }
+
+    let fat = localStorage.getItem("bodyFat");
+    if(fat){
+        healthRecords.push({
+            type:"BodyFat",
+            bodyFat:fat,
+            date:new Date().toISOString()
+        });
+    }
+
+    let maintain = localStorage.getItem("maintainCalories");
+    if(maintain){
+        healthRecords.push({
+            type:"Calories",
+            maintain:maintain,
+            loss:localStorage.getItem("lossCalories"),
+            gain:localStorage.getItem("gainCalories"),
+            date:new Date().toISOString()
+        });
+    }
+
+    localStorage.setItem(key, JSON.stringify(healthRecords));
+    localStorage.setItem("migrationDone","true");
+}
+migrateOldData();
+
+function filterRecords(type, btn){
+    currentType = type;
+    document.querySelectorAll(".filter-btn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    renderRecords(type);
+}
+
+function safeDate(dateStr){
+    if(!dateStr) return "";
+    if(dateStr.includes("T")) return dateStr.split("T")[0];
+    let parts = dateStr.split(",")[0].split("/");
+    return new Date(parts[2], parts[1]-1, parts[0]).toISOString().split("T")[0];
+}
+
+function renderRecords(type){
+    let dateSearch = document.getElementById("dateSearch").value;
+    let html = "";
+
+    healthRecords.slice().reverse().forEach(record=>{
+        if(type !== "all" && record.type !== type) return;
+        if(dateSearch && safeDate(record.date) !== dateSearch) return;
+
+        html += `<div class="record-box">`;
+        html += `<h2>${record.type}</h2>`;
+
+        Object.keys(record).forEach(key=>{
+            if(key !== "type")
+                html += `<p><b>${key}:</b> ${record[key]}</p>`;
+        });
+
+        html += `</div>`;
+    });
+
+    recordsDiv.innerHTML = html || "<p class='no-data'>No records found</p>";
+}
+
+/* ✅ ONLY BMI FUNCTION */
+function openBMI(){
+    window.location.href="bmiprogress.html";
+}
+
+renderRecords("all");
+</script>
+
+</body>
+</html>

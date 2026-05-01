@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMI Progress | FitGenzz</title>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Segoe UI", sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+            background: linear-gradient(rgba(255,255,255,0.65), rgba(255,255,255,0.65)),
+                        url("bgimages.png.png");
+            background-size: cover;
+            background-position: center;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #159895;
+            margin-bottom: 20px;
+        }
+
+        /* Cards */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        /* Chart */
+        .chart-box {
+            background: white;
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            height: 400px;
+        }
+
+        /* Button */
+        .back-btn {
+            display: block;
+            margin: 25px auto;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            background: #159895;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        /* Mobile */
+        @media (max-width: 600px) {
+            body {
+                padding: 15px;
+            }
+
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-box {
+                height: 320px;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>BMI Progress Dashboard</h1>
+
+    <div class="cards">
+        <div class="card">
+            <h3>Latest BMI</h3>
+            <h2 id="latestBMI">-</h2>
+        </div>
+
+        <div class="card">
+            <h3>Total Records</h3>
+            <h2 id="totalBMI">0</h2>
+        </div>
+    </div>
+
+    <div class="chart-box">
+        <canvas id="bmiChart"></canvas>
+    </div>
+
+    <button class="back-btn" onclick="window.location.href='record.html'">
+        Back to Records
+    </button>
+</div>
+
+<script>
+    const userId = localStorage.getItem("userId");
+    const key = "healthRecords_" + userId;
+
+    let allRecords = JSON.parse(localStorage.getItem(key)) || [];
+    let bmiRecords = allRecords.filter(r => r.type === "BMI");
+
+    function parseDate(dateStr) {
+        if (!dateStr) return null;
+
+        if (dateStr.includes("T")) {
+            return new Date(dateStr);
+        }
+
+        let parts = dateStr.split(",")[0].split("/");
+        return new Date(parts[2], parts[1] - 1, parts[0]);
+    }
+
+    let chartData = [];
+
+    bmiRecords.forEach(r => {
+        let d = parseDate(r.date);
+        let bmi = parseFloat(r.bmi);
+
+        if (d && bmi) {
+            chartData.push({ x: d, y: bmi });
+        }
+    });
+
+    chartData.sort((a, b) => new Date(a.x) - new Date(b.x));
+
+    document.getElementById("totalBMI").innerText = chartData.length;
+    document.getElementById("latestBMI").innerText =
+        chartData.length ? chartData[chartData.length - 1].y.toFixed(1) : "-";
+
+    const ctx = document.getElementById("bmiChart").getContext("2d");
+
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, "rgba(21,152,149,0.35)");
+    gradient.addColorStop(1, "rgba(21,152,149,0.02)");
+
+    new Chart(ctx, {
+        type: "line",
+        data: {
+            datasets: [{
+                label: "BMI Progress",
+                data: chartData,
+                borderWidth: 3,
+                tension: 0.35,
+                pointRadius: 0,
+                fill: true,
+                backgroundColor: gradient
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                intersect: false,
+                mode: "index"
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: "#111",
+                    padding: 12,
+                    displayColors: false,
+                    callbacks: {
+                        label: (ctx) => "BMI: " + ctx.raw.y
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    type: "time",
+                    time: { unit: "day" },
+                    grid: { display: false }
+                },
+                y: {
+                    beginAtZero: false,
+                    grid: { color: "rgba(0,0,0,0.05)" }
+                }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

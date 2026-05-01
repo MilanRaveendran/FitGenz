@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Health & Fitness Tips | FitGenzz</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:"Segoe UI", sans-serif;
+}
+
+/* BACKGROUND */
+body{
+    min-height:100vh;
+    background:
+    linear-gradient(rgba(255,255,255,0.65), rgba(255,255,255,0.65)),
+    url("bgimages.png.png");
+    background-size:cover;
+    background-position:center;
+}
+
+/* TOP BUTTONS */
+.Signin{
+    position:fixed;
+    top:25px;
+    right:25px;
+    padding:10px 26px;
+    border-radius:30px;
+    border:none;
+    font-size:15px;
+    font-weight:600;
+    color:white;
+    background:linear-gradient(135deg,#34d399,#0ea5a4);
+    box-shadow:0 12px 30px rgba(0,0,0,0.18);
+    cursor:pointer;
+    z-index:1000;
+}
+
+.near-btn{
+    position:fixed;
+    top:20px;
+    left:20px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    cursor:pointer;
+    z-index:1000;
+}
+.near-btn img{ width:45px; }
+.near-btn p{ font-size:12px; color:#065f46; }
+
+/* TITLE */
+.title{
+    text-align:center;
+    margin-top:90px;
+    padding:0 15px;
+}
+.title h1{
+    font-size:42px;
+    color:#159895;
+}
+.title p{
+    color:#6b7280;
+    margin-top:6px;
+}
+
+/* DAILY TIP */
+#dailyTip{
+    width:90%;
+    max-width:800px;
+    margin:30px auto;
+    padding:16px 20px;
+    border-radius:18px;
+    text-align:center;
+    background:rgba(232,245,233,0.8);
+    backdrop-filter:blur(10px);
+    font-size:17px;
+    border-left:5px solid #2e8b57;
+    color:#1f6f4a;
+}
+
+/* FILTER BUTTONS */
+.filter-buttons{
+    text-align:center;
+    padding:0 10px;
+}
+.filter-buttons button{
+    margin:6px;
+    padding:10px 18px;
+    border-radius:20px;
+    border:none;
+    cursor:pointer;
+    font-weight:600;
+    background:linear-gradient(135deg,#34d399,#0ea5a4);
+    color:white;
+}
+
+/* GRID */
+.container{
+    max-width:1100px;
+    margin:40px auto 80px;
+    padding:0 15px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:25px;
+}
+
+/* CARD */
+.tip-card{
+    padding:22px 18px;
+    border-radius:18px;
+    background:rgba(255,255,255,0.7);
+    backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,0.8);
+    box-shadow:0 10px 30px rgba(0,0,0,0.08);
+}
+.tip-card h3{
+    color:#1f6f4a;
+    margin-bottom:8px;
+}
+.tip-card p{
+    color:#6b7280;
+    line-height:1.5;
+}
+
+/* MOBILE */
+@media(max-width:768px){
+    .title h1{ font-size:28px; }
+    .Signin{ top:15px; right:15px; }
+    .near-btn{ top:15px; left:15px; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="near-btn" onclick="findNearbyGyms()">
+    <img src="neargym.png">
+    <p>Nearby Gyms</p>
+</div>
+
+<button class="Signin" onclick="location.href='Signin.html'">Sign in</button>
+
+<div class="title">
+    <h1>Health & Fitness Tips</h1>
+    <p>Get tips for a healthy lifestyle</p>
+</div>
+
+<div id="dailyTip"></div>
+
+<div class="filter-buttons">
+    <button onclick="filterTips('all')">All</button>
+    <button onclick="filterTips('diet')">Diet</button>
+    <button onclick="filterTips('workout')">Workout</button>
+    <button onclick="filterTips('sleep')">Sleep</button>
+    <button onclick="filterTips('mind')">Mind</button>
+</div>
+
+<div class="container" id="tipsContainer"></div>
+
+<script>
+const tips = [
+   {category:"diet", title:"Stay Hydrated", text:"Drink at least 2-3 liters of water daily."},
+   {category:"diet", title:"Eat Protein", text:"Include protein in every meal for muscle growth."},
+   {category:"diet", title:"Avoid Sugar", text:"Reduce sugary drinks and processed snacks."},
+   {category:"diet", title:"Avoid Fried Foods", text:"Limit fried foods high in unhealthy fats."},
+   {category:"workout", title:"Warm Up", text:"Warm up for 5-10 minutes before exercise."},
+   {category:"workout", title:"Progressive Overload", text:"Gradually increase weights."},
+   {category:"workout", title:"Rest Days", text:"Allow muscles to recover."},
+   {category:"sleep", title:"Sleep 7-9 Hours", text:"Sleep improves recovery and focus."},
+   {category:"sleep", title:"Digital Detox", text:"Avoid screens before sleeping."},
+   {category:"sleep", title:"Fixed Schedule", text:"Sleep and wake at same time daily."},
+   {category:"mind", title:"Reduce Stress", text:"Practice breathing or meditation."},
+   {category:"mind", title:"Stay Consistent", text:"Small habits build big results."},
+   {category:"mind", title:"Positive Mindset", text:"Focus on progress not perfection."}
+];
+
+function displayTips(category){
+    const container = document.getElementById("tipsContainer");
+    container.innerHTML = "";
+    tips.forEach(tip=>{
+        if(category==="all" || tip.category===category){
+            container.innerHTML += `
+            <div class="tip-card">
+                <h3>${tip.title}</h3>
+                <p>${tip.text}</p>
+            </div>`;
+        }
+    });
+}
+
+function filterTips(category){
+    displayTips(category);
+}
+
+function showDailyTip(){
+    let randomTip = tips[Math.floor(Math.random()*tips.length)];
+    document.getElementById("dailyTip").innerHTML =
+        "🌟 Tip of the Day: " + randomTip.text;
+}
+
+function findNearbyGyms(){
+    if (!navigator.geolocation){
+        alert("Location not supported");
+        return;
+    }
+    navigator.geolocation.getCurrentPosition(function(position){
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        const url = `https://www.google.com/maps/search/gym/@${lat},${lon},15z`;
+        window.open(url, "_blank");
+    });
+}
+
+showDailyTip();
+displayTips("all");
+</script>
+
+</body>
+</html>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FitGenz Tools</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:"times new roman", serif;
+}
+
+/* BACKGROUND */
+body{
+    min-height:100vh;
+    padding:20px;
+    background:
+    linear-gradient(rgba(255,255,255,0.65), rgba(255,255,255,0.65)),
+    url("bgimages.png.png");
+    background-size:cover;
+    background-position:center;
+}
+
+/* SIGN IN BUTTON */
+.Signin{
+    position:fixed;
+    top:20px;
+    right:20px;
+    padding:10px 26px;
+    border-radius:30px;
+    border:none;
+    font-size:15px;
+    font-weight:600;
+    color:white;
+    background:linear-gradient(135deg,#34d399,#0ea5a4);
+    box-shadow:0 12px 30px rgba(0,0,0,0.18);
+    cursor:pointer;
+    transition:0.3s;
+    z-index:999;
+}
+
+.Signin:hover{
+    transform:translateY(-3px);
+}
+
+/* NEARBY GYM BUTTON */
+.near-btn{
+    position:fixed;
+    top:20px;
+    left:20px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    cursor:pointer;
+    z-index:999;
+}
+
+.near-btn img{
+    width:45px;
+    height:45px;
+}
+.near-btn p{
+    font-size:12px;
+    font-weight:600;
+    color:#065f46;
+}
+
+/* HEADER */
+.title{
+    text-align:center;
+    margin-top:80px;
+}
+
+.title h1{
+    font-size:50px;
+    color:#159895;
+    font-weight:700;
+}
+
+.title p{
+    color:#6b7280;
+    margin-top:8px;
+    font-size:18px;
+}
+
+/* GRID CONTAINER */
+.container{
+    width:100%;
+    max-width:1100px;
+    margin:60px auto;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:30px;
+}
+
+/* CARD */
+.card{
+    padding:35px 25px;
+    border-radius:20px;
+    text-align:center;
+    cursor:pointer;
+    background:rgba(255,255,255,0.65);
+    backdrop-filter:blur(12px);
+    border:1px solid rgba(255,255,255,0.8);
+    box-shadow:0 10px 30px rgba(0,0,0,0.08);
+    transition:0.3s;
+}
+
+.card:hover{
+    transform:translateY(-8px);
+    box-shadow:0 20px 45px rgba(0,0,0,0.15);
+}
+
+.card img{
+    width:60px;
+    margin-bottom:10px;
+}
+
+.card h2{
+    color:#159895;
+    margin-bottom:6px;
+}
+
+.card p{
+    color:#6b7280;
+    font-size:14px;
+}
+
+/* ===== TABLET ===== */
+@media (max-width: 900px){
+    .container{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .title h1{
+        font-size:38px;
+    }
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 600px){
+    body{
+        padding:15px;
+    }
+
+    .container{
+        grid-template-columns:1fr;
+        gap:20px;
+    }
+
+    .title{
+        margin-top:70px;
+    }
+
+    .title h1{
+        font-size:28px;
+    }
+
+    .title p{
+        font-size:15px;
+    }
+
+    .Signin{
+        padding:8px 18px;
+        font-size:14px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- NEARBY GYM -->
+<div class="near-btn" onclick="findNearbyGyms()">
+    <img src="neargym.png">
+    <p>Nearby Gyms</p>
+</div>
+
+<button class="Signin" onclick="location.href='Signin.html'">Sign in</button>
+
+<div class="title">
+    <h1>FitGenz Tools</h1>
+    <p>Select a tool to continue</p>
+</div>
+
+<div class="container">
+
+<div class="card" onclick="location.href='BMIcalculator.html'">
+    <img src="bmiicon.png">
+    <h2>BMI Calculator</h2>
+    <p>Check your Body Mass Index</p>
+</div>
+
+<div class="card" onclick="location.href='Fat.html'">
+    <img src="faticon.png">
+    <h2>Body Fat %</h2>
+    <p>Estimate your body fat percentage</p>
+</div>
+
+<div class="card" onclick="location.href='Calories.html'">
+    <img src="calorieicon.png">
+    <h2>Calorie Estimator</h2>
+    <p>Calculate daily calorie needs</p>
+</div>
+
+<div class="card" onclick="location.href='sleepanalyzer.html'">
+    <img src="sleepicon.png">
+    <h2>Sleep Analyzer</h2>
+    <p>Track sleep duration</p>
+</div>
+
+<div class="card" onclick="location.href='workouttracker.html'">
+    <img src="workouttrackericon.png">
+    <h2>Workout Tracker</h2>
+    <p>Track your workout sessions</p>
+</div>
+
+<div class="card" onclick="location.href='Healthndfitnesstips.html'">
+    <img src="tipsicon.png">
+    <h2>Health & Fitness Tips</h2>
+    <p>Get tips for a healthy lifestyle</p>
+</div>
+
+</div>
+
+<script>
+function findNearbyGyms() {
+    if (!navigator.geolocation) {
+        alert("Geolocation is not supported by your browser");
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+        function(position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            const mapsUrl = `https://www.google.com/maps/search/gyms/@${lat},${lng},15z`;
+            window.open(mapsUrl, "_blank");
+        },
+        function() {
+            alert("Location access denied. Please allow location to find nearby gyms.");
+        }
+    );
+}
+</script>
+
+</body>
+</html>

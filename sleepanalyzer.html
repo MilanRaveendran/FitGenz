@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sleep Schedule Analyzer | FitGenzz</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:"Segoe UI", sans-serif;
+}
+
+/* BACKGROUND */
+body{
+    min-height:100vh;
+    background:
+    linear-gradient(rgba(255,255,255,0.65), rgba(255,255,255,0.65)),
+    url("bgimages.png.png");
+    background-size:cover;
+    background-position:center;
+}
+
+/* MAIN CARD */
+.container{
+    max-width:700px;
+    margin:120px auto;
+    background:rgba(255,255,255,0.75);
+    backdrop-filter:blur(10px);
+    padding:40px 35px;
+    border-radius:20px;
+    text-align:center;
+    box-shadow:0 15px 40px rgba(0,0,0,0.12);
+    border-top:6px solid #159895;
+}
+
+/* TITLE */
+h2{
+    color:#0f766e;
+    font-size:32px;
+    margin-bottom:15px;
+}
+
+/* INPUTS */
+select, input{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border-radius:10px;
+    border:1px solid #d1d5db;
+    font-size:15px;
+}
+
+/* BUTTON */
+button{
+    width:100%;
+    margin-top:25px;
+    padding:14px;
+    border-radius:30px;
+    border:none;
+    font-size:16px;
+    font-weight:600;
+    color:white;
+    background:linear-gradient(135deg,#34d399,#0ea5a4);
+    box-shadow:0 10px 25px rgba(0,0,0,0.18);
+    cursor:pointer;
+}
+
+/* RESULT */
+.result{
+    margin-top:20px;
+    padding:15px;
+    background:#f0fdfa;
+    border-radius:12px;
+    font-weight:600;
+    color:#065f46;
+    line-height:1.6;
+}
+
+/* CANVAS */
+canvas{
+    margin-top:25px;
+    border-radius:20px;
+    width:100%;
+    height:auto;
+}
+
+/* 📱 MOBILE OPTIMIZATION */
+@media (max-width: 768px){
+    .container{
+        margin:90px 15px;
+        padding:25px 20px;
+    }
+    h2{
+        font-size:24px;
+    }
+}
+
+/* SMALL PHONES */
+@media (max-width: 420px){
+    .container{
+        margin-top:80px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<h2>Sleep Schedule Analyzer</h2>
+
+<label>Age</label>
+<input type="number" id="age">
+
+<label>Bed Time</label>
+<input type="time" id="bedTime">
+<select id="bedPeriod">
+<option value="PM">PM</option>
+<option value="AM">AM</option>
+</select>
+
+<label>Wake Up Time</label>
+<input type="time" id="wakeTime">
+<select id="wakePeriod">
+<option value="AM">AM</option>
+<option value="PM">PM</option>
+</select>
+
+<label>How did you feel after waking?</label>
+<select id="feeling">
+<option>Very Fresh</option>
+<option>Normal</option>
+<option>Tired</option>
+</select>
+
+<button onclick="analyzeSleep()">Analyze Sleep</button>
+
+<div class="result" id="result"></div>
+
+<canvas id="sleepChart" width="400" height="250"></canvas>
+
+<p style="font-size:14px;margin-top:10px;">
+This tool estimates sleep duration and provides basic recommendations.
+</p>
+</div>
+
+<script>
+function convertToMinutes(time, period){
+    let [hours, minutes] = time.split(":").map(Number);
+    if(period==="PM" && hours!==12) hours+=12;
+    if(period==="AM" && hours===12) hours=0;
+    return hours*60 + minutes;
+}
+
+function getRecommendedSleep(age){
+    age=parseInt(age);
+    if(age<=12) return 9;
+    if(age<=18) return 8;
+    if(age<=60) return 7;
+    return 6;
+}
+
+function getSleepScore(hours){
+    hours=parseFloat(hours);
+    if(hours>=7 && hours<=9) return 100;
+    if(hours>=6) return 75;
+    if(hours>=5) return 50;
+    return 30;
+}
+
+function drawGraph(userSleep, recommendedSleep){
+    const canvas=document.getElementById("sleepChart");
+    const ctx=canvas.getContext("2d");
+
+    const centerX=canvas.width/2;
+    const centerY=canvas.height/2;
+    const radius=80;
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, Math.PI*2);
+    ctx.lineWidth=18;
+    ctx.strokeStyle="rgba(200,200,200,0.4)";
+    ctx.stroke();
+
+    let progress=userSleep/recommendedSleep;
+    if(progress>1) progress=1;
+
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, -Math.PI/2, -Math.PI/2 + (Math.PI*2*progress));
+    ctx.lineWidth=18;
+    ctx.strokeStyle="#34d399";
+    ctx.stroke();
+
+    ctx.fillStyle="#065f46";
+    ctx.font="bold 26px Segoe UI";
+    ctx.textAlign="center";
+    ctx.fillText(userSleep + "h", centerX, centerY +10);
+}
+
+function saveToRecord(age, sleepHours, recommended, score, feeling){
+    const userId = localStorage.getItem("userId");
+    const key = "healthRecords_" + userId;
+    let healthRecords = JSON.parse(localStorage.getItem(key)) || [];
+
+    healthRecords.push({
+        type:"Sleep",
+        age:age,
+        sleepDuration:sleepHours,
+        recommendedSleep:recommended,
+        sleepScore:score,
+        feeling:feeling,
+        date:new Date().toLocaleString()
+    });
+
+    localStorage.setItem(key, JSON.stringify(healthRecords));
+}
+
+function analyzeSleep(){
+    let age=document.getElementById("age").value;
+    let bed=document.getElementById("bedTime").value;
+    let wake=document.getElementById("wakeTime").value;
+    let bedPeriod=document.getElementById("bedPeriod").value;
+    let wakePeriod=document.getElementById("wakePeriod").value;
+    let feeling=document.getElementById("feeling").value;
+
+    if(!age || !bed || !wake){
+        alert("Please fill all fields");
+        return;
+    }
+
+    let bedMinutes=convertToMinutes(bed, bedPeriod);
+    let wakeMinutes=convertToMinutes(wake, wakePeriod);
+
+    if(wakeMinutes<=bedMinutes) wakeMinutes+=24*60;
+
+    let sleepHours=((wakeMinutes-bedMinutes)/60).toFixed(1);
+
+    let recommended=getRecommendedSleep(age);
+    let score=getSleepScore(sleepHours);
+
+    document.getElementById("result").innerHTML =
+        "You slept <b>"+sleepHours+" hours</b><br>"+
+        "Recommended: "+recommended+" hrs<br>"+
+        "Sleep Score: "+score+"/100<br>"+
+        "Feeling: "+feeling;
+
+    drawGraph(sleepHours, recommended);
+    saveToRecord(age, sleepHours, recommended, score, feeling);
+}
+</script>
+
+</body>
+</html>

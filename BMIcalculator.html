@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMI Calculator | FitGenz</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", sans-serif;
+        }
+
+        /* BACKGROUND */
+        body {
+            min-height: 100vh;
+            padding: 20px;
+            background: linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)),
+                        url("bgimages.png.png");
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* TOP BUTTONS */
+        .Signin {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 24px;
+            border-radius: 30px;
+            border: none;
+            font-size: 15px;
+            font-weight: 600;
+            color: white;
+            background: linear-gradient(135deg,#34d399,#0ea5a4);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.18);
+            cursor: pointer;
+            z-index: 999;
+        }
+
+        .near-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            z-index: 999;
+        }
+
+        .near-btn img {
+            width: 45px;
+        }
+
+        .near-btn p {
+            font-size: 12px;
+            font-weight: 600;
+            color: #065f46;
+        }
+
+        /* MAIN WRAPPER */
+        .wrapper {
+            max-width: 1100px;
+            margin: 90px auto 30px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        /* CARD */
+        .card {
+            background: rgba(255,255,255,0.75);
+            backdrop-filter: blur(14px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+            border-top: 6px solid #159895;
+        }
+
+        h1 {
+            text-align: center;
+            color: #0f766e;
+        }
+
+        .subtitle {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #6b7280;
+        }
+
+        /* FORM */
+        label {
+            display: block;
+            margin-top: 14px;
+            font-weight: 600;
+            color: #065f46;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin-top: 6px;
+            border-radius: 10px;
+            border: 1px solid #d1d5db;
+            font-size: 15px;
+        }
+
+        button.calculate {
+            width: 100%;
+            margin-top: 22px;
+            padding: 14px;
+            border-radius: 30px;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            background: linear-gradient(135deg,#34d399,#0ea5a4);
+            cursor: pointer;
+        }
+
+        .result {
+            margin-top: 18px;
+            padding: 16px;
+            border-radius: 12px;
+            background: #ecfeff;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            color: #0f766e;
+        }
+
+        /* INFO */
+        .info-title {
+            color: #0f766e;
+            margin-bottom: 10px;
+        }
+
+        .bmi-list {
+            margin-top: 10px;
+            padding-left: 18px;
+            line-height: 1.7;
+        }
+
+        .note {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #047857;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 900px) {
+            .wrapper {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            body { padding: 15px; }
+            .card { padding: 20px; }
+            h1 { font-size: 24px; }
+            .wrapper { margin-top: 80px; gap: 20px; }
+            input, select, button {
+                font-size: 16px;
+                min-height: 44px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Nearby Gym Button -->
+    <div class="near-btn" onclick="findNearbyGyms()">
+        <img src="neargym.png">
+        <p>Nearby Gyms</p>
+    </div>
+
+    <!-- Signin Button -->
+    <button class="Signin" onclick="location.href='Signin.html'">
+        Sign in
+    </button>
+
+    <div class="wrapper">
+
+        <!-- BMI CALCULATOR -->
+        <div class="card">
+            <h1>BMI Calculator</h1>
+            <p class="subtitle">Check your Body Mass Index instantly</p>
+
+            <label>Age</label>
+            <input type="number" id="age">
+
+            <label>Gender</label>
+            <select id="gender">
+                <option value="">Select gender</option>
+                <option>Male</option>
+                <option>Female</option>
+            </select>
+
+            <label>Height (cm)</label>
+            <input type="number" id="height">
+
+            <label>Weight (kg)</label>
+            <input type="number" id="weight">
+
+            <button class="calculate" onclick="calculateBMI()">
+                Calculate BMI
+            </button>
+
+            <div class="result" id="result"></div>
+        </div>
+
+        <!-- INFO SECTION -->
+        <div class="card">
+            <h2 class="info-title">What is BMI?</h2>
+            <p>
+                Body Mass Index (BMI) is a numerical value calculated using a person's 
+                weight and height.
+            </p>
+
+            <h3 class="info-title">BMI Categories</h3>
+            <ul class="bmi-list">
+                <li>Below 18.5 → Underweight</li>
+                <li>18.5 – 24.9 → Normal</li>
+                <li>25 – 29.9 → Overweight</li>
+                <li>30+ → Obese</li>
+            </ul>
+
+            <p class="note">
+                BMI is a general indicator and not a medical diagnosis.
+            </p>
+        </div>
+
+    </div>
+
+    <script>
+        function calculateBMI() {
+            const height = parseFloat(document.getElementById("height").value);
+            const weight = parseFloat(document.getElementById("weight").value);
+
+            if (!height || !weight) {
+                document.getElementById("result").innerHTML =
+                    "Please enter height and weight.";
+                return;
+            }
+
+            const heightM = height / 100;
+            let bmi = weight / (heightM * heightM);
+            bmi = bmi.toFixed(2);
+
+            let category = "";
+            if (bmi < 18.5) category = "Underweight";
+            else if (bmi < 25) category = "Normal weight";
+            else if (bmi < 30) category = "Overweight";
+            else category = "Obese";
+
+            document.getElementById("result").innerHTML =
+                `Your BMI is ${bmi} (${category})`;
+
+            // Save data
+            const userId = localStorage.getItem("userId");
+            const key = "healthRecords_" + userId;
+
+            let healthRecords = JSON.parse(localStorage.getItem(key)) || [];
+
+            healthRecords.push({
+                type: "BMI",
+                bmi: bmi,
+                category: category,
+                weight: weight,
+                date: new Date().toLocaleString()
+            });
+
+            localStorage.setItem(key, JSON.stringify(healthRecords));
+        }
+
+        function findNearbyGyms() {
+            if (!navigator.geolocation) {
+                alert("Geolocation is not supported by your browser");
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    const url = `https://www.google.com/maps/search/gyms/@${lat},${lng},15z`;
+                    window.open(url, "_blank");
+                },
+                function() {
+                    alert("Location access denied.");
+                }
+            );
+        }
+    </script>
+</body>
+</html>

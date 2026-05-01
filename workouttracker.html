@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workout Tracker | FitGenz</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:"Segoe UI", sans-serif;
+}
+
+/* BACKGROUND */
+body{
+    min-height:100vh;
+    background:
+    linear-gradient(rgba(255,255,255,0.65), rgba(255,255,255,0.65)),
+    url("bgimages.png.png");
+    background-size:cover;
+    background-position:center;
+}
+
+/* MAIN CARD */
+.container{
+    max-width:700px;
+    margin:120px auto;
+    background:rgba(255,255,255,0.75);
+    backdrop-filter:blur(10px);
+    padding:40px 35px;
+    border-radius:20px;
+    text-align:center;
+    box-shadow:0 15px 40px rgba(0,0,0,0.12);
+    border-top:6px solid #159895;
+}
+
+/* TITLE */
+h1{
+    color:#0f766e;
+    font-size:32px;
+    margin-bottom:20px;
+}
+
+/* FORM */
+label{
+    display:block;
+    text-align:left;
+    margin-top:12px;
+    font-weight:600;
+    color:#065f46;
+}
+
+input, select{
+    width:100%;
+    padding:12px;
+    margin-top:8px;
+    border-radius:10px;
+    border:1px solid #d1d5db;
+    font-size:15px;
+}
+
+/* BUTTON */
+button{
+    width:100%;
+    margin-top:22px;
+    padding:14px;
+    border-radius:30px;
+    border:none;
+    font-size:16px;
+    font-weight:600;
+    color:white;
+    background:linear-gradient(135deg,#34d399,#0ea5a4);
+    box-shadow:0 10px 25px rgba(0,0,0,0.18);
+    cursor:pointer;
+}
+
+/* RESULT BOX */
+.record-box{
+    margin-top:25px;
+    padding:20px;
+    background:#f0fdfa;
+    border-radius:12px;
+    border:1px solid #159895;
+    font-weight:600;
+    color:#065f46;
+    text-align:left;
+    line-height:1.6;
+}
+
+/* 📱 MOBILE */
+@media (max-width: 768px){
+    .container{
+        margin:90px 15px;
+        padding:25px 20px;
+    }
+    h1{
+        font-size:24px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<h1>Workout Tracker</h1>
+
+<label>Body Part</label>
+<select id="bodyPart" onchange="loadExercises()">
+<option value="">Select Body Part</option>
+<option value="Chest">Chest</option>
+<option value="Back">Back</option>
+<option value="Legs">Legs</option>
+<option value="Arms">Arms</option>
+<option value="Shoulders">Shoulders</option>
+<option value="Core">Core</option>
+</select>
+
+<label>Exercise</label>
+<select id="exercise" onchange="checkCustom()">
+<option value="">Select Exercise</option>
+</select>
+
+<div id="customExerciseDiv" style="display:none;">
+<label>Enter Custom Exercise Name</label>
+<input type="text" id="customExercise">
+</div>
+
+<label>Sets</label>
+<input type="number" id="sets">
+
+<label>Reps</label>
+<input type="number" id="reps">
+
+<label>Weight (kg)</label>
+<input type="number" id="weight">
+
+<button onclick="saveWorkout()">Save Workout</button>
+
+<div class="record-box" id="lastRecord" style="display:none;">
+<h2>Last Workout Record</h2>
+<p id="recordDetails"></p>
+<p id="progress"></p>
+</div>
+</div>
+
+<script>
+const exercises = {
+    Chest:["Bench Press","Incline Bench Press","Push Ups","Chest Fly"],
+    Back:["Pull Ups","Deadlift","Lat Pulldown","Seated Row"],
+    Legs:["Squats","Lunges","Leg Press","Leg Curl"],
+    Arms:["Bicep Curl","Tricep Pushdown","Hammer Curl","Dips"],
+    Shoulders:["Shoulder Press","Lateral Raise","Front Raise"],
+    Core:["Plank","Crunches","Leg Raise","Russian Twist"]
+};
+
+function loadExercises(){
+    let bodyPart = document.getElementById("bodyPart").value;
+    let exerciseSelect = document.getElementById("exercise");
+    exerciseSelect.innerHTML = "<option value=''>Select Exercise</option>";
+
+    if(bodyPart && exercises[bodyPart]){
+        exercises[bodyPart].forEach(ex=>{
+            exerciseSelect.innerHTML += `<option value="${ex}">${ex}</option>`;
+        });
+    }
+
+    exerciseSelect.innerHTML += `<option value="custom">Other (Custom Exercise)</option>`;
+}
+
+function checkCustom(){
+    let exercise = document.getElementById("exercise").value;
+    document.getElementById("customExerciseDiv").style.display =
+        exercise === "custom" ? "block" : "none";
+}
+
+function saveWorkout(){
+
+    let bodyPart = document.getElementById("bodyPart").value;
+    let selectedExercise = document.getElementById("exercise").value;
+    let customExercise = document.getElementById("customExercise").value;
+    let exerciseName = selectedExercise==="custom"?customExercise:selectedExercise;
+
+    let sets=parseInt(document.getElementById("sets").value);
+    let reps=parseInt(document.getElementById("reps").value);
+    let weight=parseInt(document.getElementById("weight").value)||0;
+
+    if(!bodyPart || !exerciseName || !sets || !reps){
+        alert("Please fill all required fields");
+        return;
+    }
+
+    let volume = sets*reps*weight;
+
+    const userId = localStorage.getItem("userId");
+    const key = "healthRecords_" + userId;
+
+    let healthRecords = JSON.parse(localStorage.getItem(key)) || [];
+
+    healthRecords.push({
+        type:"Workout",
+        bodyPart:bodyPart,
+        exercise:exerciseName,
+        sets:sets,
+        reps:reps,
+        weight:weight,
+        volume:volume,
+        date:new Date().toLocaleString()
+    });
+
+    localStorage.setItem(key, JSON.stringify(healthRecords));
+
+    let lastWorkout = healthRecords[healthRecords.length-1];
+    showRecord(lastWorkout);
+}
+
+function showRecord(workout){
+
+    document.getElementById("lastRecord").style.display="block";
+
+    document.getElementById("recordDetails").innerHTML = `
+        <strong>Body Part:</strong> ${workout.bodyPart} <br>
+        <strong>Exercise:</strong> ${workout.exercise} <br>
+        <strong>Sets:</strong> ${workout.sets} <br>
+        <strong>Reps:</strong> ${workout.reps} <br>
+        <strong>Weight:</strong> ${workout.weight} kg <br>
+        <strong>Total Volume:</strong> ${workout.volume} kg <br>
+        <strong>Date:</strong> ${workout.date}
+    `;
+
+    document.getElementById("progress").innerHTML = "Workout saved successfully ✅";
+}
+</script>
+
+</body>
+</html>
